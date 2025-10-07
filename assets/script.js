@@ -1,5 +1,5 @@
 const firebaseConfig = {
-  apiKey: "AIzaSy...",
+  apiKey: "AIzaSy...", // ضع بياناتك هنا
   authDomain: "alsekhawy-reviews.firebaseapp.com",
   databaseURL: "https://alsekhawy-reviews-default-rtdb.firebaseio.com",
   projectId: "alsekhawy-reviews",
@@ -52,6 +52,7 @@ function addReviewToPage(id, name, comment) {
   });
 }
 
+// استعراض التعليقات الحقيقية من Firebase فقط
 db.ref('reviews').on('value', snapshot => {
   reviewsContainer.innerHTML = '';
   snapshot.forEach(child => {
