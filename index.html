@@ -50,7 +50,15 @@ h1 {
     transition: background 0.2s;
 }
 .buttons button:hover { background:#c0c0c0; }
-form {
+<div id="reviewsContainer"></div> <!-- فوق الفورم مباشرة -->
+<form id="reviewForm">
+  <input type="text" id="name" placeholder="اكتب اسمك" required>
+  <input type="email" id="email" placeholder="البريد الإلكتروني" required>
+  <textarea id="comment" placeholder="اكتب تعليقك هنا" required></textarea>
+  <button type="submit">إرسال</button>
+</form>
+
+    form {
     max-width:600px;
     margin:0 auto;
     display:flex;
