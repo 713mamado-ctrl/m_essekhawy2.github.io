@@ -23,7 +23,7 @@
             color: #555;
         }
         .review {
-            background-color: #1E3A8A; /* لون ثابت أزرق داكن */
+            background-color: #1E3A8A; 
             border-radius: 8px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
             padding: 15px;
@@ -33,7 +33,6 @@
             justify-content: space-between;
             align-items: center;
             min-height: 80px;
-            text-align: center;
             word-wrap: break-word;
             color: #fff;
             font-weight: bold;
@@ -42,9 +41,12 @@
         .review:hover {
             transform: scale(1.02);
         }
-        .review p {
-            margin: 0;
+        .review-content {
             flex: 1;
+        }
+        .review-content p {
+            margin: 2px 0;
+            text-align: center;
         }
         .buttons {
             display: flex;
@@ -76,10 +78,10 @@
             max-width: 600px;
             margin: 20px auto;
             display: flex;
+            flex-direction: column;
             gap: 10px;
         }
-        .input-container input {
-            flex: 1;
+        .input-container input, .input-container textarea {
             padding: 10px;
             border-radius: 5px;
             border: 1px solid #ccc;
@@ -93,6 +95,7 @@
             color: #fff;
             font-size: 16px;
             cursor: pointer;
+            align-self: flex-start;
         }
         .input-container button:hover {
             background-color: #555;
@@ -103,7 +106,9 @@
     <h1>أراء السادة العملاء</h1>
 
     <div class="input-container">
-        <input type="text" id="reviewInput" placeholder="اكتب رأيك هنا...">
+        <input type="text" id="nameInput" placeholder="الاسم الكامل">
+        <input type="email" id="emailInput" placeholder="البريد الإلكتروني">
+        <textarea id="reviewInput" placeholder="اكتب رأيك هنا..." rows="3"></textarea>
         <button onclick="addReview()">إرسال</button>
     </div>
 
@@ -111,33 +116,39 @@
     <div id="reviewsContainer"></div>
 
     <script>
-        function addReview(text = null, save = true) {
+        function addReview(text=null, save=true, name=null, email=null) {
             const input = document.getElementById('reviewInput');
+            const nameField = document.getElementById('nameInput');
+            const emailField = document.getElementById('emailInput');
             const container = document.getElementById('reviewsContainer');
             const countDisplay = document.getElementById('reviewsCount');
 
             const reviewText = text || input.value.trim();
-            if(reviewText === "") return;
+            const userName = name || nameField.value.trim();
+            const userEmail = email || emailField.value.trim();
+
+            if (!reviewText || !userName || !userEmail) {
+                alert("يرجى ملء جميع الحقول قبل الإرسال.");
+                return;
+            }
 
             const reviewDiv = document.createElement('div');
             reviewDiv.className = 'review';
 
-            const p = document.createElement('p');
-            p.textContent = reviewText;
-            reviewDiv.appendChild(p);
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'review-content';
+            contentDiv.innerHTML = `<p><strong>${userName}</strong> - ${userEmail}</p><p>${reviewText}</p>`;
 
             const btnContainer = document.createElement('div');
             btnContainer.className = 'buttons';
 
-            // أيقونة تعديل SVG
             const editBtn = document.createElement('button');
             editBtn.className = 'editBtn';
             editBtn.innerHTML = `<svg fill="#FFD700" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                                     <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1.003 1.003 0 0 0 0-1.42l-2.34-2.34a1.003 1.003 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.82z"/>
                                  </svg>`;
-            editBtn.onclick = () => editReview(p, reviewDiv);
+            editBtn.onclick = () => editReview(contentDiv, reviewDiv);
 
-            // أيقونة حذف SVG
             const deleteBtn = document.createElement('button');
             deleteBtn.className = 'deleteBtn';
             deleteBtn.innerHTML = `<svg fill="#FF0000" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
@@ -147,28 +158,32 @@
 
             btnContainer.appendChild(editBtn);
             btnContainer.appendChild(deleteBtn);
+
+            reviewDiv.appendChild(contentDiv);
             reviewDiv.appendChild(btnContainer);
 
             container.prepend(reviewDiv);
 
             if(!text && save) {
-                saveReview(reviewText);
+                saveReview(userName, userEmail, reviewText);
                 input.value = "";
+                nameField.value = "";
+                emailField.value = "";
                 input.focus();
             }
 
             countDisplay.textContent = `عدد الآراء: ${container.childElementCount}`;
         }
 
-        function saveReview(text) {
+        function saveReview(name, email, text) {
             let reviews = JSON.parse(localStorage.getItem('reviews')) || [];
-            reviews.unshift(text);
+            reviews.unshift({name, email, text});
             localStorage.setItem('reviews', JSON.stringify(reviews));
         }
 
         function loadReviews() {
             let reviews = JSON.parse(localStorage.getItem('reviews')) || [];
-            reviews.forEach(r => addReview(r, false));
+            reviews.forEach(r => addReview(r.text, false, r.name, r.email));
         }
 
         function deleteReview(reviewDiv) {
@@ -176,17 +191,30 @@
             updateLocalStorage();
         }
 
-        function editReview(p, reviewDiv) {
-            const newText = prompt("عدل رأيك:", p.textContent);
-            if(newText !== null && newText.trim() !== "") {
-                p.textContent = newText.trim();
-                updateLocalStorage();
-            }
+        function editReview(contentDiv, reviewDiv) {
+            const paragraphs = contentDiv.querySelectorAll('p');
+            const oldNameEmail = paragraphs[0].textContent.split(' - ');
+            const oldName = oldNameEmail[0];
+            const oldEmail = oldNameEmail[1];
+            const oldText = paragraphs[1].textContent;
+
+            const newName = prompt("عدل الاسم:", oldName) || oldName;
+            const newEmail = prompt("عدل البريد الإلكتروني:", oldEmail) || oldEmail;
+            const newText = prompt("عدل الرأي:", oldText) || oldText;
+
+            paragraphs[0].textContent = `${newName} - ${newEmail}`;
+            paragraphs[1].textContent = newText;
+
+            updateLocalStorage();
         }
 
         function updateLocalStorage() {
             const container = document.getElementById('reviewsContainer');
-            const reviews = Array.from(container.querySelectorAll('.review p')).map(p => p.textContent);
+            const reviews = Array.from(container.querySelectorAll('.review-content')).map(div => {
+                const p = div.querySelectorAll('p');
+                const nameEmail = p[0].textContent.split(' - ');
+                return {name: nameEmail[0], email: nameEmail[1], text: p[1].textContent};
+            });
             localStorage.setItem('reviews', JSON.stringify(reviews));
             document.getElementById('reviewsCount').textContent = `عدد الآراء: ${reviews.length}`;
         }
