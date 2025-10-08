@@ -5,79 +5,80 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>أضف رأيك</title>
 <style>
-    body {
-        font-family: Arial, sans-serif;
-        background-color: #f7f7f7;
-        margin: 0;
-        padding: 20px;
-        direction: rtl;
-    }
-    h1 {
-        text-align: center;
-        color: #222;
-    }
-    #reviewsContainer {
-        max-width: 600px;
-        margin: 20px auto;
-    }
-    .review {
-        background: #fff;
-        border-radius: 10px;
-        padding: 15px;
-        margin-bottom: 10px;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        position: relative;
-    }
-    .review p { margin: 5px 0; }
-    .buttons {
-        position: absolute;
-        top: 10px;
-        left: 10px;
-        display: flex;
-        gap: 8px;
-    }
-    .buttons button {
-        background: none;
-        border: none;
-        cursor: pointer;
-        font-size: 14px;
-        color: #555;
-    }
-    form {
-        max-width: 600px;
-        margin: 30px auto;
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-    }
-    input, textarea {
-        padding: 10px;
-        border-radius: 6px;
-        border: 1px solid #ccc;
-        font-size: 16px;
-    }
-    button[type="submit"] {
-        padding: 10px 20px;
-        border: none;
-        background-color: #1E3A8A;
-        color: #fff;
-        border-radius: 6px;
-        font-size: 16px;
-        cursor: pointer;
-    }
-    button[type="submit"]:hover {
-        background-color: #334EAA;
-    }
-    #formMessage {
-        font-size: 14px;
-        color: green;
-    }
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f7f7f7;
+    margin: 0;
+    padding: 20px;
+    direction: rtl;
+}
+h1 {
+    text-align: center;
+    color: #222;
+}
+#reviewsContainer {
+    max-width: 600px;
+    margin: 20px auto;
+}
+.review {
+    background: #fff;
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    position: relative;
+}
+.review p { margin: 5px 0; }
+.buttons {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    display: flex;
+    gap: 8px;
+}
+.buttons button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    color: #555;
+}
+form {
+    max-width: 600px;
+    margin: 30px auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+input, textarea {
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+}
+button[type="submit"] {
+    padding: 10px 20px;
+    border: none;
+    background-color: #1E3A8A;
+    color: #fff;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+}
+button[type="submit"]:hover {
+    background-color: #334EAA;
+}
+#formMessage {
+    font-size: 14px;
+    color: green;
+}
 </style>
 </head>
 <body>
 
 <h1>أضف رأيك</h1>
 
+<!-- الآراء تظهر هنا فوق الفورم -->
 <div id="reviewsContainer"></div>
 
 <form id="reviewForm">
@@ -91,17 +92,16 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 <script>
-  // إعداد Firebase (بدّل القيم دي بقيم مشروعك)
+  // إعداد Firebase
   const firebaseConfig = {
     apiKey: "ضع_القيمة_هنا",
     authDomain: "ضع_القيمة_هنا",
-    databaseURL: "https://alsekhawy-reviews-default-rtdb.firebaseio.com/",
+    databaseURL: "ضع_القيمة_هنا",
     projectId: "ضع_القيمة_هنا",
     storageBucket: "ضع_القيمة_هنا",
     messagingSenderId: "ضع_القيمة_هنا",
     appId: "ضع_القيمة_هنا"
   };
-
   firebase.initializeApp(firebaseConfig);
   const db = firebase.database().ref("reviews");
 
@@ -109,7 +109,6 @@
   const reviewsContainer = document.getElementById("reviewsContainer");
   const formMessage = document.getElementById("formMessage");
 
-  // عرض رأي
   function displayReview(id, name, email, comment) {
     const div = document.createElement("div");
     div.classList.add("review");
@@ -121,67 +120,3 @@
         <button onclick="editReview('${id}')">✏️ تعديل</button>
         <button onclick="deleteReview('${id}')">🗑️ حذف</button>
       </div>
-    `;
-    reviewsContainer.prepend(div);
-  }
-
-  // تحميل الآراء من Firebase
-  db.on("child_added", snapshot => {
-    const data = snapshot.val();
-    displayReview(snapshot.key, data.name, data.email, data.comment);
-  });
-
-  db.on("child_changed", snapshot => {
-    const div = document.querySelector(`.review[data-id='${snapshot.key}']`);
-    if (div) {
-      const pList = div.querySelectorAll("p");
-      pList[1].textContent = snapshot.val().comment;
-    }
-  });
-
-  db.on("child_removed", snapshot => {
-    const div = document.querySelector(`.review[data-id='${snapshot.key}']`);
-    if (div) div.remove();
-  });
-
-  // إضافة رأي جديد
-  form.addEventListener("submit", e => {
-    e.preventDefault();
-    const name = document.getElementById("name").value.trim();
-    const email = document.getElementById("email").value.trim();
-    const comment = document.getElementById("comment").value.trim();
-
-    if (!name || !email || !comment) return;
-
-    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailPattern.test(email)) {
-      formMessage.textContent = "يرجى إدخال بريد إلكتروني صحيح.";
-      return;
-    }
-
-    const newRef = db.push();
-    newRef.set({ name, email, comment });
-
-    form.reset();
-    formMessage.textContent = "تم إرسال رأيك بنجاح!";
-  });
-
-  // حذف
-  function deleteReview(id) {
-    if (confirm("هل تريد حذف هذا الرأي؟")) {
-      db.child(id).remove();
-    }
-  }
-
-  // تعديل (التعليق فقط)
-  function editReview(id) {
-    const div = document.querySelector(`.review[data-id='${id}']`);
-    const oldComment = div.querySelectorAll("p")[1].textContent;
-    const newComment = prompt("عدل تعليقك:", oldComment);
-    if (newComment && newComment.trim() !== "") {
-      db.child(id).update({ comment: newComment.trim() });
-    }
-  }
-</script>
-</body>
-</html>
