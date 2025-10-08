@@ -1,209 +1,192 @@
 <!DOCTYPE html>
 <html lang="ar">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>أضف رأيك</title>
 <style>
-body {
-    font-family: 'Arial', sans-serif;
-    background: #f0f4f8;
-    margin: 0;
-    padding: 20px;
-    direction: rtl;
-}
-h1 {
-    text-align: center;
-    color: #1E3A8A;
-    margin-bottom: 20px;
-}
-#reviewsContainer {
-    max-width: 600px;
-    margin: 0 auto 30px auto;
-}
-.review {
-    background: #fff;
-    border-radius: 12px;
-    padding: 15px 20px;
-    margin-bottom: 15px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    position: relative;
-    transition: transform 0.2s;
-}
-.review:hover { transform: translateY(-2px); }
-.review p { margin:5px 0; }
-.review strong { color: #1E3A8A; }
-.buttons {
-    position:absolute;
-    top:10px;
-    left:10px;
-    display:flex;
-    gap:8px;
-}
-.buttons button {
-    background:#e0e0e0;
-    border:none;
-    padding:5px 8px;
-    border-radius:6px;
-    cursor:pointer;
-    font-size:14px;
-    transition: background 0.2s;
-}
-.buttons button:hover { background:#c0c0c0; }
-form {
-    max-width:600px;
-    margin:0 auto;
-    display:flex;
-    flex-direction:column;
-    gap:12px;
-    background:#fff;
-    padding:20px;
-    border-radius:12px;
-    box-shadow:0 4px 8px rgba(0,0,0,0.05);
-}
-input, textarea {
-    padding:12px;
-    border-radius:8px;
-    border:1px solid #ccc;
-    font-size:16px;
-    width:100%;
-    box-sizing:border-box;
-}
-textarea { resize: vertical; min-height:80px; }
-button[type="submit"] {
-    padding:12px;
-    border:none;
-    background-color:#1E3A8A;
-    color:#fff;
-    border-radius:8px;
-    font-size:16px;
-    cursor:pointer;
-    transition: background 0.2s;
-}
-button[type="submit"]:hover { background-color:#334EAA; }
-#formMessage { font-size:14px; color:green; text-align:center; }
+  body{font-family:Arial, sans-serif;direction:rtl;background:#f3f6fa;padding:20px;margin:0}
+  h1{text-align:center;color:#1E3A8A}
+  #reviewsContainer{max-width:700px;margin:0 auto 20px}
+  .review{background:#fff;border-radius:10px;padding:14px 18px;margin-bottom:12px;box-shadow:0 3px 8px rgba(0,0,0,0.06);position:relative}
+  .review p{margin:6px 0;color:#222}
+  .review strong{color:#1E3A8A}
+  .buttons{position:absolute;top:10px;left:10px;display:flex;gap:8px}
+  .btn{background:#efefef;border:none;padding:6px 8px;border-radius:6px;cursor:pointer}
+  form{max-width:700px;margin:0 auto;background:#fff;padding:18px;border-radius:12px;box-shadow:0 3px 8px rgba(0,0,0,0.04);display:flex;flex-direction:column;gap:10px}
+  input,textarea{padding:10px;border-radius:8px;border:1px solid #ccc;font-size:15px;width:100%;box-sizing:border-box}
+  textarea{min-height:90px;resize:vertical}
+  button[type=submit]{background:#1E3A8A;color:#fff;border:none;padding:12px;border-radius:8px;cursor:pointer}
+  #formMessage{text-align:center;color:green;font-size:14px}
 </style>
 </head>
 <body>
 
 <h1>أضف رأيك</h1>
-<div id="reviewsContainer"></div>
+
+<!-- الآراء تظهر هنا فوق الفورم -->
+<div id="reviewsContainer" aria-live="polite"></div>
 
 <form id="reviewForm">
-<input type="text" id="name" placeholder="اكتب اسمك" required>
-<input type="email" id="email" placeholder="البريد الإلكتروني" required>
-<textarea id="comment" placeholder="اكتب تعليقك هنا" required></textarea>
-<button type="submit">إرسال</button>
-<div id="formMessage"></div>
+  <input id="name" type="text" placeholder="اكتب اسمك" required />
+  <input id="email" type="email" placeholder="البريد الإلكتروني" required />
+  <textarea id="comment" placeholder="اكتب تعليقك هنا" required></textarea>
+  <button type="submit">إرسال</button>
+  <div id="formMessage" role="status"></div>
 </form>
 
+<!-- Firebase compat scripts -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
 <script>
+/* ====== ضع هنا إعدادات Firebase الخاصة بك ====== */
 const firebaseConfig = {
-  apiKey: "ضع_القيمة_هنا",
-  authDomain: "ضع_القيمة_هنا",
-  databaseURL: "ضع_القيمة_هنا",
-  projectId: "ضع_القيمة_هنا",
-  storageBucket: "ضع_القيمة_هنا",
-  messagingSenderId: "ضع_القيمة_هنا",
-  appId: "ضع_القيمة_هنا"
+  apiKey: "PUT_YOUR_apiKey",
+  authDomain: "PUT_YOUR_authDomain",
+  databaseURL: "PUT_YOUR_databaseURL",
+  projectId: "PUT_YOUR_projectId",
+  storageBucket: "PUT_YOUR_storageBucket",
+  messagingSenderId: "PUT_YOUR_messagingSenderId",
+  appId: "PUT_YOUR_appId"
 };
+/* =============================================== */
+
 firebase.initializeApp(firebaseConfig);
-const db = firebase.database().ref("reviews");
+const dbRef = firebase.database().ref('reviews');
 
-const reviewsContainer = document.getElementById("reviewsContainer");
-const form = document.getElementById("reviewForm");
-const formMessage = document.getElementById("formMessage");
+const reviewsContainer = document.getElementById('reviewsContainer');
+const form = document.getElementById('reviewForm');
+const formMessage = document.getElementById('formMessage');
 
-function createReviewElement(id, name, comment){
-    const div = document.createElement("div");
-    div.classList.add("review");
-    div.setAttribute("data-id", id);
+function makeReviewElement(id, name, comment){
+  const div = document.createElement('div');
+  div.className = 'review';
+  div.setAttribute('data-id', id);
 
-    const nameP = document.createElement("p");
-    nameP.innerHTML = `<strong>${name}</strong>`;
+  const nameP = document.createElement('p');
+  nameP.innerHTML = `<strong>${escapeHtml(name)}</strong>`;
 
-    const commentP = document.createElement("p");
-    commentP.textContent = comment;
+  const commentP = document.createElement('p');
+  commentP.textContent = comment;
 
-    const btnDiv = document.createElement("div");
-    btnDiv.classList.add("buttons");
+  // أزرار تعديل وحذف
+  const btnDiv = document.createElement('div');
+  btnDiv.className = 'buttons';
 
-    const editBtn = document.createElement("button");
-    editBtn.textContent = "✏️ تعديل";
-    editBtn.onclick = () => editReview(id);
+  const editBtn = document.createElement('button');
+  editBtn.className = 'btn';
+  editBtn.textContent = '✏️ تعديل';
+  editBtn.onclick = () => editComment(id);
 
-    const deleteBtn = document.createElement("button");
-    deleteBtn.textContent = "🗑️ حذف";
-    deleteBtn.onclick = () => deleteReview(id);
+  const delBtn = document.createElement('button');
+  delBtn.className = 'btn';
+  delBtn.textContent = '🗑️ حذف';
+  delBtn.onclick = () => deleteComment(id);
 
-    btnDiv.appendChild(editBtn);
-    btnDiv.appendChild(deleteBtn);
+  btnDiv.appendChild(editBtn);
+  btnDiv.appendChild(delBtn);
 
-    div.appendChild(nameP);
-    div.appendChild(commentP);
-    div.appendChild(btnDiv);
+  div.appendChild(nameP);
+  div.appendChild(commentP);
+  div.appendChild(btnDiv);
 
-    return div;
+  return div;
 }
 
+/* عرض التعليق فورًا (يعرض فوق كل التعليقات) */
 function displayReview(id, name, comment){
-    const existingDiv = document.querySelector(`.review[data-id='${id}']`);
-    if(existingDiv) existingDiv.remove();
-    const div = createReviewElement(id,name,comment);
-    reviewsContainer.prepend(div);
+  // إذا العنصر موجود مسبقاً نحدّثه؛ وإلا نُنشئه
+  const existing = document.querySelector(`.review[data-id="${id}"]`);
+  if(existing) existing.remove();
+  const el = makeReviewElement(id, name, comment);
+  reviewsContainer.prepend(el); // الأحدث فوق
 }
 
-// تحميل الآراء من Firebase فورًا
-db.on("child_added", snapshot => {
-    const data = snapshot.val();
-    displayReview(snapshot.key, data.name, data.comment);
+/* تحميل كل التعليقات عند البدء */
+function loadAllReviews(){
+  reviewsContainer.innerHTML = ''; // تنظف قبل التحميل لتفادى التكرار
+  dbRef.once('value', snap => {
+    const data = snap.val();
+    if(!data) return;
+    // نُظهر الأحدث أولًا (المفتاح لا يحوي تاريخ، لذلك نُرتّب حسب ترقيم الإدخالات زمنياً عبر الترتيب الافتراضي)
+    const entries = Object.entries(data);
+    // لو عايز ترتيب بعكس: entries.reverse()
+    entries.reverse().forEach(([key, value])=>{
+      displayReview(key, value.name || 'مجهول', value.comment || '');
+    });
+  }, err => console.error('DB load error', err));
+}
+
+/* استماع لتحديثات فورية (اضافة\تعديل\حذف) */
+dbRef.on('child_added', snap => {
+  const v = snap.val();
+  // لو العنصر موجود بالفعل (عرضنا فوراً على submit) نتجنّب الازدواج:
+  if(document.querySelector(`.review[data-id="${snap.key}"]`)) return;
+  displayReview(snap.key, v.name, v.comment);
+});
+dbRef.on('child_changed', snap => {
+  const v = snap.val();
+  displayReview(snap.key, v.name, v.comment);
+});
+dbRef.on('child_removed', snap => {
+  const el = document.querySelector(`.review[data-id="${snap.key}"]`);
+  if(el) el.remove();
 });
 
-db.on("child_changed", snapshot => {
-    const data = snapshot.val();
-    displayReview(snapshot.key, data.name, data.comment);
-});
+/* إرسال فوراً + حفظ في Firebase */
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  formMessage.textContent = '';
+  const name = document.getElementById('name').value.trim();
+  const email = document.getElementById('email').value.trim(); // نحتفظ بالايميل في DB
+  const comment = document.getElementById('comment').value.trim();
+  if(!name || !email || !comment) { formMessage.textContent = 'املأ كل الحقول.'; return; }
 
-db.on("child_removed", snapshot => {
-    const div = document.querySelector(`.review[data-id='${snapshot.key}']`);
-    if(div) div.remove();
-});
+  // تحقق سريع من الايميل
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if(!emailPattern.test(email)){ formMessage.textContent = 'بريد إلكتروني غير صحيح.'; return; }
 
-// فورم الإرسال
-form.addEventListener("submit", e=>{
-    e.preventDefault();
-    const name = document.getElementById("name").value.trim();
-    const email = document.getElementById("email").value.trim();
-    const comment = document.getElementById("comment").value.trim();
-    if(!name || !email || !comment) return;
-
-    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if(!emailPattern.test(email)){
-        formMessage.textContent = "يرجى إدخال بريد إلكتروني صحيح.";
-        return;
-    }
-
-    const newRef = db.push();
-    newRef.set({name, email, comment});
+  try {
+    // عرض فوري للمستخدم قبل انتظار DB
+    const tempRef = dbRef.push(); // نحصل على مفتاح
+    displayReview(tempRef.key, name, comment);
+    // نحفظ الايميل والاسم والتعليق في DB
+    await tempRef.set({ name, email, comment, createdAt: Date.now() });
     form.reset();
-    formMessage.textContent = "تم إرسال رأيك بنجاح!";
+    formMessage.textContent = 'تم إرسال رأيك بنجاح!';
+  } catch (err) {
+    console.error('Save error', err);
+    formMessage.textContent = 'حدث خطأ أثناء الإرسال. افتح الكونسول لتفاصيل الخطأ.';
+  }
 });
 
-// الحذف
-function deleteReview(id){
-    if(confirm("هل تريد حذف هذا الرأي؟")) db.child(id).remove();
+/* حذف وتعديل */
+function deleteComment(id){
+  if(confirm('هل تريد حذف هذا الرأي؟')) dbRef.child(id).remove();
+}
+function editComment(id){
+  const el = document.querySelector(`.review[data-id="${id}"]`);
+  if(!el) return alert('العنصر غير موجود.');
+  const old = el.querySelectorAll('p')[1].textContent;
+  const updated = prompt('عدل تعليقك:', old);
+  if(updated === null) return; // الغاء
+  const trimmed = updated.trim();
+  if(trimmed === '') return alert('التعليق لا يمكن أن يكون فارغاً.');
+  dbRef.child(id).update({ comment: trimmed, editedAt: Date.now() });
 }
 
-// التعديل
-function editReview(id){
-    const div = document.querySelector(`.review[data-id='${id}']`);
-    const oldComment = div.querySelectorAll("p")[1].textContent;
-    const newComment = prompt("عدل تعليقك:", oldComment);
-    if(newComment && newComment.trim()!=="") db.child(id).update({comment:newComment.trim()});
+/* مساعدة للـ XSS: تهريب النصوص */
+function escapeHtml(str){
+  return String(str).replace(/[&<>"'`=\/]/g, s => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;','/':'&#x2F;','`':'&#x60;','=':'&#x3D;'
+  })[s]);
 }
+
+/* تحميل بداية */
+document.addEventListener('DOMContentLoaded', () => {
+  loadAllReviews();
+});
 </script>
-
 </body>
 </html>
