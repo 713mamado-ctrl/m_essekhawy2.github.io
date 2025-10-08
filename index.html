@@ -78,7 +78,6 @@ button[type="submit"]:hover {
 
 <h1>أضف رأيك</h1>
 
-<!-- الآراء تظهر هنا فوق الفورم -->
 <div id="reviewsContainer"></div>
 
 <form id="reviewForm">
@@ -92,7 +91,6 @@ button[type="submit"]:hover {
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 <script>
-  // إعداد Firebase
   const firebaseConfig = {
     apiKey: "ضع_القيمة_هنا",
     authDomain: "ضع_القيمة_هنا",
@@ -109,14 +107,23 @@ button[type="submit"]:hover {
   const reviewsContainer = document.getElementById("reviewsContainer");
   const formMessage = document.getElementById("formMessage");
 
-  function displayReview(id, name, email, comment) {
+  function createReviewElement(id, name, email, comment){
     const div = document.createElement("div");
     div.classList.add("review");
     div.setAttribute("data-id", id);
-    div.innerHTML = `
-      <p><strong>${name}</strong> - ${email}</p>
-      <p>${comment}</p>
-      <div class="buttons">
-        <button onclick="editReview('${id}')">✏️ تعديل</button>
-        <button onclick="deleteReview('${id}')">🗑️ حذف</button>
-      </div>
+
+    const nameEmailP = document.createElement("p");
+    nameEmailP.innerHTML = `<strong>${name}</strong> - ${email}`;
+
+    const commentP = document.createElement("p");
+    commentP.textContent = comment;
+
+    const btnDiv = document.createElement("div");
+    btnDiv.classList.add("buttons");
+
+    const editBtn = document.createElement("button");
+    editBtn.textContent = "✏️ تعديل";
+    editBtn.onclick = () => editReview(id);
+
+    const deleteBtn = document.createElement("button");
+    deleteBtn.t
