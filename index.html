@@ -31,57 +31,57 @@ h1 {
     transition: transform 0.2s;
 }
 .review:hover { transform: translateY(-2px); }
-.review p { margin: 5px 0; }
+.review p { margin:5px 0; }
 .review strong { color: #1E3A8A; }
 .buttons {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    display: flex;
-    gap: 8px;
+    position:absolute;
+    top:10px;
+    left:10px;
+    display:flex;
+    gap:8px;
 }
 .buttons button {
-    background: #e0e0e0;
-    border: none;
-    padding: 5px 8px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 14px;
+    background:#e0e0e0;
+    border:none;
+    padding:5px 8px;
+    border-radius:6px;
+    cursor:pointer;
+    font-size:14px;
     transition: background 0.2s;
 }
-.buttons button:hover { background: #c0c0c0; }
+.buttons button:hover { background:#c0c0c0; }
 form {
-    max-width: 600px;
-    margin: 0 auto;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    background: #fff;
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+    max-width:600px;
+    margin:0 auto;
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+    background:#fff;
+    padding:20px;
+    border-radius:12px;
+    box-shadow:0 4px 8px rgba(0,0,0,0.05);
 }
 input, textarea {
-    padding: 12px;
-    border-radius: 8px;
-    border: 1px solid #ccc;
-    font-size: 16px;
-    width: 100%;
-    box-sizing: border-box;
+    padding:12px;
+    border-radius:8px;
+    border:1px solid #ccc;
+    font-size:16px;
+    width:100%;
+    box-sizing:border-box;
 }
-textarea { resize: vertical; min-height: 80px; }
+textarea { resize: vertical; min-height:80px; }
 button[type="submit"] {
-    padding: 12px;
-    border: none;
-    background-color: #1E3A8A;
-    color: #fff;
-    border-radius: 8px;
-    font-size: 16px;
-    cursor: pointer;
+    padding:12px;
+    border:none;
+    background-color:#1E3A8A;
+    color:#fff;
+    border-radius:8px;
+    font-size:16px;
+    cursor:pointer;
     transition: background 0.2s;
 }
-button[type="submit"]:hover { background-color: #334EAA; }
-#formMessage { font-size: 14px; color: green; text-align: center; }
+button[type="submit"]:hover { background-color:#334EAA; }
+#formMessage { font-size:14px; color:green; text-align:center; }
 </style>
 </head>
 <body>
@@ -91,6 +91,7 @@ button[type="submit"]:hover { background-color: #334EAA; }
 
 <form id="reviewForm">
 <input type="text" id="name" placeholder="اكتب اسمك" required>
+<input type="email" id="email" placeholder="البريد الإلكتروني" required>
 <textarea id="comment" placeholder="اكتب تعليقك هنا" required></textarea>
 <button type="submit">إرسال</button>
 <div id="formMessage"></div>
@@ -172,11 +173,18 @@ db.on("child_removed", snapshot => {
 form.addEventListener("submit", e=>{
     e.preventDefault();
     const name = document.getElementById("name").value.trim();
+    const email = document.getElementById("email").value.trim();
     const comment = document.getElementById("comment").value.trim();
-    if(!name || !comment) return;
+    if(!name || !email || !comment) return;
+
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if(!emailPattern.test(email)){
+        formMessage.textContent = "يرجى إدخال بريد إلكتروني صحيح.";
+        return;
+    }
 
     const newRef = db.push();
-    newRef.set({name, comment});
+    newRef.set({name, email, comment});
     form.reset();
     formMessage.textContent = "تم إرسال رأيك بنجاح!";
 });
