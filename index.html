@@ -23,7 +23,7 @@
             color: #555;
         }
         .review {
-            background-color: #fff;
+            background-color: #1E3A8A; /* لون ثابت أزرق داكن */
             border-radius: 8px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
             padding: 15px;
@@ -111,8 +111,6 @@
     <div id="reviewsContainer"></div>
 
     <script>
-        const colors = ["#FF5733", "#33C3FF", "#33FF8D", "#FF33EC", "#FFC733", "#8D33FF"];
-
         function addReview(text = null, save = true) {
             const input = document.getElementById('reviewInput');
             const container = document.getElementById('reviewsContainer');
@@ -123,7 +121,6 @@
 
             const reviewDiv = document.createElement('div');
             reviewDiv.className = 'review';
-            reviewDiv.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
 
             const p = document.createElement('p');
             p.textContent = reviewText;
