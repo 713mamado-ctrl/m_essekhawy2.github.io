@@ -1,33 +1,200 @@
 <!DOCTYPE html>
 <html lang="ar">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
- <h1>آراء السادة العملاء</h1>
-  <link rel="stylesheet" href="assets/style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>أراء السادة العملاء</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 20px;
+            direction: rtl;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        #reviewsCount {
+            text-align: center;
+            margin: 10px auto;
+            font-size: 18px;
+            color: #555;
+        }
+        .review {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            padding: 15px;
+            margin: 10px auto;
+            max-width: 600px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            min-height: 80px;
+            text-align: center;
+            word-wrap: break-word;
+            color: #fff;
+            font-weight: bold;
+            transition: transform 0.2s;
+        }
+        .review:hover {
+            transform: scale(1.02);
+        }
+        .review p {
+            margin: 0;
+            flex: 1;
+        }
+        .buttons {
+            display: flex;
+            gap: 10px;
+            margin-left: 10px;
+        }
+        .buttons button {
+            border: none;
+            border-radius: 5px;
+            padding: 5px;
+            cursor: pointer;
+            background-color: transparent;
+            transition: transform 0.2s, filter 0.2s;
+        }
+        .buttons button svg {
+            width: 22px;
+            height: 22px;
+        }
+        .editBtn:hover svg {
+            filter: brightness(1.5);
+            transform: scale(1.2);
+        }
+        .deleteBtn:hover svg {
+            filter: brightness(0.8);
+            transform: scale(1.2) rotate(-10deg);
+        }
+
+        .input-container {
+            max-width: 600px;
+            margin: 20px auto;
+            display: flex;
+            gap: 10px;
+        }
+        .input-container input {
+            flex: 1;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+        }
+        .input-container button {
+            padding: 10px 20px;
+            border-radius: 5px;
+            border: none;
+            background-color: #333;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .input-container button:hover {
+            background-color: #555;
+        }
+    </style>
 </head>
 <body>
-  <header>
-    <h1>آراء العملاء</h1>
-  </header>
+    <h1>أراء السادة العملاء</h1>
 
-  <main>
-    <section class="reviews"></section>
+    <div class="input-container">
+        <input type="text" id="reviewInput" placeholder="اكتب رأيك هنا...">
+        <button onclick="addReview()">إرسال</button>
+    </div>
 
-    <section class="add-review">
-      <h2>أضف رأيك</h2>
-      <form id="reviewForm">
-        <input type="text" id="name" placeholder="اكتب اسمك" required>
-        <input type="email" id="email" placeholder="البريد الإلكتروني" required>
-        <textarea id="comment" placeholder="اكتب تعليقك هنا" required></textarea>
-        <button type="submit">إرسال</button>
-        <div id="formMessage" role="status" aria-live="polite"></div>
-      </form>
-    </section>
-  </main>
+    <div id="reviewsCount">عدد الآراء: 0</div>
+    <div id="reviewsContainer"></div>
 
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-  <script src="assets/script.js"></script>
+    <script>
+        const colors = ["#FF5733", "#33C3FF", "#33FF8D", "#FF33EC", "#FFC733", "#8D33FF"];
+
+        function addReview(text = null, save = true) {
+            const input = document.getElementById('reviewInput');
+            const container = document.getElementById('reviewsContainer');
+            const countDisplay = document.getElementById('reviewsCount');
+
+            const reviewText = text || input.value.trim();
+            if(reviewText === "") return;
+
+            const reviewDiv = document.createElement('div');
+            reviewDiv.className = 'review';
+            reviewDiv.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+
+            const p = document.createElement('p');
+            p.textContent = reviewText;
+            reviewDiv.appendChild(p);
+
+            const btnContainer = document.createElement('div');
+            btnContainer.className = 'buttons';
+
+            // أيقونة تعديل SVG
+            const editBtn = document.createElement('button');
+            editBtn.className = 'editBtn';
+            editBtn.innerHTML = `<svg fill="#FFD700" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                                    <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1.003 1.003 0 0 0 0-1.42l-2.34-2.34a1.003 1.003 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.82z"/>
+                                 </svg>`;
+            editBtn.onclick = () => editReview(p, reviewDiv);
+
+            // أيقونة حذف SVG
+            const deleteBtn = document.createElement('button');
+            deleteBtn.className = 'deleteBtn';
+            deleteBtn.innerHTML = `<svg fill="#FF0000" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                                    <path d="M16 9v10H8V9h8m-1.5-6h-5l-1 1H5v2h14V4h-4.5l-1-1z"/>
+                                   </svg>`;
+            deleteBtn.onclick = () => deleteReview(reviewDiv);
+
+            btnContainer.appendChild(editBtn);
+            btnContainer.appendChild(deleteBtn);
+            reviewDiv.appendChild(btnContainer);
+
+            container.prepend(reviewDiv);
+
+            if(!text && save) {
+                saveReview(reviewText);
+                input.value = "";
+                input.focus();
+            }
+
+            countDisplay.textContent = `عدد الآراء: ${container.childElementCount}`;
+        }
+
+        function saveReview(text) {
+            let reviews = JSON.parse(localStorage.getItem('reviews')) || [];
+            reviews.unshift(text);
+            localStorage.setItem('reviews', JSON.stringify(reviews));
+        }
+
+        function loadReviews() {
+            let reviews = JSON.parse(localStorage.getItem('reviews')) || [];
+            reviews.forEach(r => addReview(r, false));
+        }
+
+        function deleteReview(reviewDiv) {
+            reviewDiv.remove();
+            updateLocalStorage();
+        }
+
+        function editReview(p, reviewDiv) {
+            const newText = prompt("عدل رأيك:", p.textContent);
+            if(newText !== null && newText.trim() !== "") {
+                p.textContent = newText.trim();
+                updateLocalStorage();
+            }
+        }
+
+        function updateLocalStorage() {
+            const container = document.getElementById('reviewsContainer');
+            const reviews = Array.from(container.querySelectorAll('.review p')).map(p => p.textContent);
+            localStorage.setItem('reviews', JSON.stringify(reviews));
+            document.getElementById('reviewsCount').textContent = `عدد الآراء: ${reviews.length}`;
+        }
+
+        window.onload = loadReviews;
+    </script>
 </body>
 </html>
