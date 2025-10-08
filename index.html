@@ -1,225 +1,197 @@
 <!DOCTYPE html>
 <html lang="ar">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>أضف رأيك</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f2f2f2;
-            margin: 0;
-            padding: 20px;
-            direction: rtl;
-        }
-        h1 {
-            color: #333;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        #reviewsCount {
-            text-align: center;
-            margin: 10px auto;
-            font-size: 18px;
-            color: #555;
-        }
-        .review {
-            background-color: #ffffff; 
-            border-radius: 10px;
-            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
-            padding: 15px;
-            margin: 10px auto;
-            max-width: 600px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            min-height: 80px;
-            word-wrap: break-word;
-            color: #333;
-            transition: transform 0.2s;
-        }
-        .review:hover {
-            transform: scale(1.02);
-        }
-        .review-content {
-            flex: 1;
-            text-align: center;
-        }
-        .review-content p {
-            margin: 3px 0;
-        }
-        .buttons {
-            display: flex;
-            gap: 10px;
-            margin-left: 10px;
-        }
-        .buttons button {
-            border: none;
-            border-radius: 5px;
-            padding: 5px;
-            cursor: pointer;
-            background-color: transparent;
-            transition: transform 0.2s, filter 0.2s;
-        }
-        .buttons button svg {
-            width: 22px;
-            height: 22px;
-        }
-        .editBtn:hover svg {
-            filter: brightness(1.5);
-            transform: scale(1.2);
-        }
-        .deleteBtn:hover svg {
-            filter: brightness(0.8);
-            transform: scale(1.2) rotate(-10deg);
-        }
-        .input-container {
-            max-width: 600px;
-            margin: 20px auto;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        .input-container input, .input-container textarea {
-            padding: 10px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-            font-size: 16px;
-        }
-        .input-container button {
-            padding: 10px 20px;
-            border-radius: 5px;
-            border: none;
-            background-color: #1E3A8A;
-            color: #fff;
-            font-size: 16px;
-            cursor: pointer;
-            align-self: flex-start;
-        }
-        .input-container button:hover {
-            background-color: #334EAA;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>أضف رأيك</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f2f2f2;
+        margin: 0;
+        padding: 20px;
+        direction: rtl;
+    }
+    h1, h2 {
+        text-align: center;
+        color: #333;
+    }
+    #reviewsContainer {
+        max-width: 600px;
+        margin: 20px auto;
+    }
+    .review {
+        background-color: #fff;
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 10px;
+        box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+        position: relative;
+    }
+    .review p {
+        margin: 5px 0;
+    }
+    .buttons {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        display: flex;
+        gap: 5px;
+    }
+    .buttons button {
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 14px;
+        color: #555;
+    }
+    form {
+        max-width: 600px;
+        margin: 20px auto;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    input, textarea {
+        padding: 10px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        font-size: 16px;
+    }
+    button[type="submit"] {
+        padding: 10px 20px;
+        border-radius: 5px;
+        border: none;
+        background-color: #1E3A8A;
+        color: #fff;
+        cursor: pointer;
+        font-size: 16px;
+    }
+    button[type="submit"]:hover {
+        background-color: #334EAA;
+    }
+    #formMessage {
+        font-size: 14px;
+        color: green;
+    }
+</style>
 </head>
 <body>
-    <h1>أضف رأيك</h1>
 
-    <!-- الحاوية الخاصة بالآراء فوق الحقول -->
-    <div id="reviewsContainer"></div>
-    <div id="reviewsCount">عدد الآراء: 0</div>
+<h1>أضف رأيك</h1>
 
-    <div class="input-container">
-        <input type="text" id="nameInput" placeholder="الاسم الكامل">
-        <input type="email" id="emailInput" placeholder="البريد الإلكتروني">
-        <textarea id="reviewInput" placeholder="اكتب رأيك هنا..." rows="3"></textarea>
-        <button onclick="addReview()">إرسال</button>
-    </div>
+<div id="reviewsContainer"></div>
 
-    <script>
-        function addReview(text=null, save=true, name=null, email=null) {
-            const input = document.getElementById('reviewInput');
-            const nameField = document.getElementById('nameInput');
-            const emailField = document.getElementById('emailInput');
-            const container = document.getElementById('reviewsContainer');
-            const countDisplay = document.getElementById('reviewsCount');
+<section class="add-review">
+<h2>أضف رأيك</h2>
+<form id="reviewForm">
+<input type="text" id="name" placeholder="اكتب اسمك" required>
+<input type="email" id="email" placeholder="البريد الإلكتروني" required>
+<textarea id="comment" placeholder="اكتب تعليقك هنا" required></textarea>
+<button type="submit">إرسال</button>
+<div id="formMessage" role="status" aria-live="polite"></div>
+</form>
+</section>
 
-            const reviewText = text || input.value.trim();
-            const userName = name || nameField.value.trim();
-            const userEmail = email || emailField.value.trim();
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script>
+    // إعداد Firebase
+    const firebaseConfig = {
+        apiKey: "ضع هنا API Key الخاص بك",
+        authDomain: "ضع هنا authDomain الخاص بك",
+        databaseURL: "ضع هنا databaseURL الخاص بك",
+        projectId: "ضع هنا projectId الخاص بك",
+        storageBucket: "ضع هنا storageBucket الخاص بك",
+        messagingSenderId: "ضع هنا messagingSenderId الخاص بك",
+        appId: "ضع هنا appId الخاص بك"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database().ref("reviews");
 
-            if (!reviewText || !userName || !userEmail) {
-                alert("يرجى ملء جميع الحقول قبل الإرسال.");
-                return;
-            }
+    const form = document.getElementById("reviewForm");
+    const reviewsContainer = document.getElementById("reviewsContainer");
+    const formMessage = document.getElementById("formMessage");
 
-            const reviewDiv = document.createElement('div');
-            reviewDiv.className = 'review';
+    function createReviewElement(id, name, email, comment) {
+        const div = document.createElement("div");
+        div.classList.add("review");
+        div.setAttribute("data-id", id);
 
-            const contentDiv = document.createElement('div');
-            contentDiv.className = 'review-content';
-            contentDiv.innerHTML = `<p><strong>${userName}</strong> - ${userEmail}</p><p>${reviewText}</p>`;
+        div.innerHTML = `
+            <p><strong>${name}</strong> - ${email}</p>
+            <p>${comment}</p>
+            <div class="buttons">
+                <button onclick="editReview('${id}')">تعديل</button>
+                <button onclick="deleteReview('${id}')">حذف</button>
+            </div>
+        `;
+        return div;
+    }
 
-            const btnContainer = document.createElement('div');
-            btnContainer.className = 'buttons';
+    function displayReview(id, name, email, comment) {
+        const reviewElement = createReviewElement(id, name, email, comment);
+        reviewsContainer.prepend(reviewElement);
+    }
 
-            const editBtn = document.createElement('button');
-            editBtn.className = 'editBtn';
-            editBtn.innerHTML = `<svg fill="#FFD700" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                                    <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1.003 1.003 0 0 0 0-1.42l-2.34-2.34a1.003 1.003 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.82z"/>
-                                 </svg>`;
-            editBtn.onclick = () => editReview(contentDiv, reviewDiv);
+    // تحميل الآراء من Firebase
+    db.on("child_added", snapshot => {
+        const data = snapshot.val();
+        displayReview(snapshot.key, data.name, data.email, data.comment);
+    });
 
-            const deleteBtn = document.createElement('button');
-            deleteBtn.className = 'deleteBtn';
-            deleteBtn.innerHTML = `<svg fill="#FF0000" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                                    <path d="M16 9v10H8V9h8m-1.5-6h-5l-1 1H5v2h14V4h-4.5l-1-1z"/>
-                                   </svg>`;
-            deleteBtn.onclick = () => deleteReview(reviewDiv);
+    db.on("child_changed", snapshot => {
+        const data = snapshot.val();
+        const div = document.querySelector(`.review[data-id='${snapshot.key}']`);
+        if(div) {
+            div.querySelector("p:nth-child(1)").textContent = `${data.name} - ${data.email}`;
+            div.querySelector("p:nth-child(2)").textContent = data.comment;
+        }
+    });
 
-            btnContainer.appendChild(editBtn);
-            btnContainer.appendChild(deleteBtn);
+    db.on("child_removed", snapshot => {
+        const div = document.querySelector(`.review[data-id='${snapshot.key}']`);
+        if(div) div.remove();
+    });
 
-            reviewDiv.appendChild(contentDiv);
-            reviewDiv.appendChild(btnContainer);
+    form.addEventListener("submit", e => {
+        e.preventDefault();
+        const name = document.getElementById("name").value.trim();
+        const email = document.getElementById("email").value.trim();
+        const comment = document.getElementById("comment").value.trim();
 
-            container.prepend(reviewDiv);
+        if(!name || !email || !comment) return;
 
-            if(!text && save) {
-                saveReview(userName, userEmail, reviewText);
-                input.value = "";
-                nameField.value = "";
-                emailField.value = "";
-                input.focus();
-            }
-
-            countDisplay.textContent = `عدد الآراء: ${container.childElementCount}`;
+        // تحقق من صحة البريد الإلكتروني
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if(!emailPattern.test(email)) {
+            formMessage.textContent = "يرجى إدخال بريد إلكتروني صحيح.";
+            return;
         }
 
-        function saveReview(name, email, text) {
-            let reviews = JSON.parse(localStorage.getItem('reviews')) || [];
-            reviews.unshift({name, email, text});
-            localStorage.setItem('reviews', JSON.stringify(reviews));
+        const newReviewRef = db.push();
+        newReviewRef.set({name, email, comment});
+
+        formMessage.textContent = "تم إرسال رأيك بنجاح!";
+        form.reset();
+    });
+
+    function deleteReview(id) {
+        if(confirm("هل أنت متأكد أنك تريد حذف هذا الرأي؟")) {
+            db.child(id).remove();
         }
+    }
 
-        function loadReviews() {
-            let reviews = JSON.parse(localStorage.getItem('reviews')) || [];
-            reviews.forEach(r => addReview(r.text, false, r.name, r.email));
+    function editReview(id) {
+        const div = document.querySelector(`.review[data-id='${id}']`);
+        const name = prompt("عدل الاسم:", div.querySelector("p:nth-child(1)").textContent.split(" - ")[0]);
+        const email = prompt("عدل البريد الإلكتروني:", div.querySelector("p:nth-child(1)").textContent.split(" - ")[1]);
+        const comment = prompt("عدل التعليق:", div.querySelector("p:nth-child(2)").textContent);
+        if(name && email && comment) {
+            db.child(id).update({name, email, comment});
         }
+    }
+</script>
 
-        function deleteReview(reviewDiv) {
-            reviewDiv.remove();
-            updateLocalStorage();
-        }
-
-        function editReview(contentDiv, reviewDiv) {
-            const paragraphs = contentDiv.querySelectorAll('p');
-            const oldNameEmail = paragraphs[0].textContent.split(' - ');
-            const oldName = oldNameEmail[0];
-            const oldEmail = oldNameEmail[1];
-            const oldText = paragraphs[1].textContent;
-
-            const newName = prompt("عدل الاسم:", oldName) || oldName;
-            const newEmail = prompt("عدل البريد الإلكتروني:", oldEmail) || oldEmail;
-            const newText = prompt("عدل الرأي:", oldText) || oldText;
-
-            paragraphs[0].textContent = `${newName} - ${newEmail}`;
-            paragraphs[1].textContent = newText;
-
-            updateLocalStorage();
-        }
-
-        function updateLocalStorage() {
-            const container = document.getElementById('reviewsContainer');
-            const reviews = Array.from(container.querySelectorAll('.review-content')).map(div => {
-                const p = div.querySelectorAll('p');
-                const nameEmail = p[0].textContent.split(' - ');
-                return {name: nameEmail[0], email: nameEmail[1], text: p[1].textContent};
-            });
-            localStorage.setItem('reviews', JSON.stringify(reviews));
-            document.getElementById('reviewsCount').textContent = `عدد الآراء: ${reviews.length}`;
-        }
-
-        window.onload = loadReviews;
-    </script>
 </body>
 </html>
