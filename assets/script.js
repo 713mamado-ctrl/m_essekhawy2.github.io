@@ -1,3 +1,33 @@
+const reviewsContainer = document.getElementById("reviewsContainer");
+
+function displayReview(id, name, comment){
+    const div = document.createElement("div");
+    div.classList.add("review");
+    div.setAttribute("data-id", id);
+
+    const nameP = document.createElement("p");
+    nameP.innerHTML = `<strong>${name}</strong>`;
+    const commentP = document.createElement("p");
+    commentP.textContent = comment;
+
+    div.appendChild(nameP);
+    div.appendChild(commentP);
+
+    reviewsContainer.prepend(div); // تظهر فوق الفورم فورًا
+}
+
+form.addEventListener("submit", e=>{
+    e.preventDefault();
+    const name = document.getElementById("name").value.trim();
+    const comment = document.getElementById("comment").value.trim();
+    if(!name || !comment) return;
+
+    const newRef = db.push();
+    newRef.set({name, comment});
+    form.reset();
+    displayReview(newRef.key, name, comment); // العرض مباشرة بعد الإرسال
+});
+
 const firebaseConfig = {
   apiKey: "AIzaSy...", // ضع بياناتك هنا
   authDomain: "alsekhawy-reviews.firebaseapp.com",
