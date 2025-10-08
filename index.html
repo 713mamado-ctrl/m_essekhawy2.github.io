@@ -50,15 +50,7 @@ h1 {
     transition: background 0.2s;
 }
 .buttons button:hover { background:#c0c0c0; }
-<div id="reviewsContainer"></div> <!-- فوق الفورم مباشرة -->
-<form id="reviewForm">
-  <input type="text" id="name" placeholder="اكتب اسمك" required>
-  <input type="email" id="email" placeholder="البريد الإلكتروني" required>
-  <textarea id="comment" placeholder="اكتب تعليقك هنا" required></textarea>
-  <button type="submit">إرسال</button>
-</form>
-
-    form {
+form {
     max-width:600px;
     margin:0 auto;
     display:flex;
@@ -163,6 +155,7 @@ function displayReview(id, name, comment){
     reviewsContainer.prepend(div);
 }
 
+// تحميل الآراء من Firebase فورًا
 db.on("child_added", snapshot => {
     const data = snapshot.val();
     displayReview(snapshot.key, data.name, data.comment);
@@ -178,6 +171,7 @@ db.on("child_removed", snapshot => {
     if(div) div.remove();
 });
 
+// فورم الإرسال
 form.addEventListener("submit", e=>{
     e.preventDefault();
     const name = document.getElementById("name").value.trim();
@@ -197,10 +191,12 @@ form.addEventListener("submit", e=>{
     formMessage.textContent = "تم إرسال رأيك بنجاح!";
 });
 
+// الحذف
 function deleteReview(id){
     if(confirm("هل تريد حذف هذا الرأي؟")) db.child(id).remove();
 }
 
+// التعديل
 function editReview(id){
     const div = document.querySelector(`.review[data-id='${id}']`);
     const oldComment = div.querySelectorAll("p")[1].textContent;
